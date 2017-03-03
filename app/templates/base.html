@@ -1,0 +1,32 @@
+<html>
+    <head>
+        {% if title  %}
+        <title>{{ title }} - microblog</title>
+        {% else %}
+        <title>Welcome to microblog</title>
+        {% endif %}
+    </head>
+    <body>
+        <div>Microblog:
+            <a href="/index">Home</a>
+            {% if 'email' in session %}
+                <a href='/profile'>Profile</a>
+                <a href='/signout'>Sign Out</a>
+            {% else %}
+                <a href='/register'>Register</a>
+                <a href='/signin'>Sign In</a>
+            {% endif %}
+        </div>
+        <hr>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li><span style="color:red">{{ message }}</span></li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </body>
+</html>
