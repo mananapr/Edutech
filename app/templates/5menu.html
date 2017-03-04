@@ -1,66 +1,6 @@
-<!DOCTYPE html>
-<title>5 Minutes | EdTech</title>
-
-<!-- bootstrap -->
-<link rel="stylesheet" href="/static/assets/bootstrap/css/bootstrap.min.css" />
-
-<!-- animate.css -->
-<link rel="stylesheet" href="/static/assets/animate/animate.css" />
-<link rel="stylesheet" href="/static/assets/animate/set.css" />
-
-<!-- gallery -->
-<link rel="stylesheet" href="/static/assets/gallery/blueimp-gallery.min.css">
-
-<!-- favicon -->
-<link rel="shortcut icon" href="/static/images/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
-
-
-<link rel="stylesheet" href="/static/assets/style.css">
-
-</head>
-
-<body>
-<div class="topbar animated fadeInLeftBig"></div>
-
-<!-- Header Starts -->
-<div class="navbar-wrapper">
-      <div class="container">
-
-        <div class="navbar navbar-default navbar-fixed-top" role="navigation" id="top-nav">
-          <div class="container">
-            <div class="navbar-header">
-            
-
-
-              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-
-            </div>
-
-
-            <!-- Nav Starts -->
-            <div class="navbar-collapse  collapse">
-              <ul class="nav navbar-nav navbar-right scroll">
-                 <li class="active"><a href="index">Home</a></li>
-				 <li class="active"><a href="signin">Login</a></li>
-                 <li class="active"><a href="register">Register</a></li>
-                 
-              </ul>
-            </div>
-            <!-- #Nav Ends -->
-
-          </div>
-        </div>
-
-      </div>
-    </div>
+{% extends "base_nav2.html" %}
+{% block content %}
 <!-- #Header Starts -->
-
 <!-- works -->
 <div id="works"  class=" clearfix grid"> 
     <figure class="effect-oscar  wowload fadeIn">
@@ -91,3 +31,4 @@
 
      
 </div>
+{% endblock %}

@@ -1,2 +1,4 @@
 app.db
 migrations/
+app/.views.py.swo
+app/static/css/.style.css.swp

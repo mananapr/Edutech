@@ -105,6 +105,7 @@ a:focus, .btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:acti
 	font-weight: 700;
 	letter-spacing: 1px;
 }
+
 #menu.navbar-default .navbar-nav > li > a {
 	text-transform: uppercase;
 	color: #ddd;
