@@ -5,6 +5,6 @@ A Flask based webapp which allows users to share Educational Content.
 
 ##To Do List
 - <s>User Authentication</s>
-- Common Navbar
+- Common Navbar *Almost Done. Requires some Final Touches.*
 - Profile Pages
 - Dynamic Content
