@@ -2,7 +2,8 @@
 
 {% block content %}
     <div>
-        <h2>Profile</h2>
+        <h3>Profile</h3>
         <h3>This is {{ user.nickname.title() }}'s Profile Page</h3>
+        <img src={{ user.avatar() }} height="120" width="128">
     </div>
 {% endblock %}
