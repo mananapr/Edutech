@@ -52,13 +52,13 @@
             <!-- Nav Starts -->
             <div class="navbar-collapse  collapse">
               <ul class="nav navbar-nav navbar-right scroll">
-                 <li class="active"><a href="index">Home</a></li>
+                 <li class="active"><a href={{ url_for('index') }}>Home</a></li>
                  {% if 'email' not in session %}
-                    <li class="active"><a href="signin">Login</a></li>
-                    <li class="active"><a href="register">Register</a></li>
+                    <li class="active"><a href={{ url_for('signin') }}>Login</a></li>
+                    <li class="active"><a href={{ url_for('register') }}>Register</a></li>
                  {% else %}
-                    <li class="active"><a href="/profile">Profile</a></li>
-                    <li class="active"><a href="/signout">Logout</a></li>
+                    <li class="active"><a href={{ url_for('profile', nick=session['nick']) }}>Profile</a></li>
+                    <li class="active"><a href={{ url_for('signout') }}>Logout</a></li>
                  {% endif %}
 
               </ul>

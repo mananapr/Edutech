@@ -8,7 +8,7 @@ class User(db.Model):
     pwdhash = db.Column(db.String(54))
     
     def __init__(self, nickname, email, password):
-        self.nickname = nickname.title()
+        self.nickname = nickname
         self.email = email.lower()
         self.set_password(password)
 

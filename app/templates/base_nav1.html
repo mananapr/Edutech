@@ -36,11 +36,11 @@
     <div class="navbar-header">
       <a class="navbar-brand page-scroll" href="#page-top">EdTech</a>
       {% if 'email' in session %}
-          <a class="navbar-brand page-scroll" href="/profile">Profile</a></div>
-          <a class="navbar-brand page-scroll" href="/signout">SignOut</a></div>
+          <a class="navbar-brand page-scroll" href={{ url_for('profile', nick=session['nick']) }}>Profile</a></div>
+          <a class="navbar-brand page-scroll" href={{ url_for('signout') }}>SignOut</a></div>
       {% else %}
-          <a class="navbar-brand page-scroll" href="/signin">Sign In</a>
-          <a class="navbar-brand page-scroll" href="/register">Register</a>
+          <a class="navbar-brand page-scroll" href={{ url_for('signin') }}>Sign In</a>
+          <a class="navbar-brand page-scroll" href={{ url_for('register') }}>Register</a>
       {% endif %}
     </div>
 

@@ -3,3 +3,6 @@ migrations/
 app/.views.py.swo
 app/static/css/.style.css.swp
 app/templates/.signin.html.swp
+app/templates/.profile.html.swp
+__pycache__
+app/__pycache__
