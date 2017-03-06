@@ -1,9 +1,17 @@
 {% extends "base_nav2.html" %}
 
 {% block content %}
-    <div>
-        <h3>Profile</h3>
-        <h3>This is {{ user.nickname.title() }}'s Profile Page</h3>
+    <div class="info">
+        <h2>Profile</h2>
+        <h2>This is {{ user.nickname.title() }}'s Profile Page</h2>
         <img src={{ user.avatar() }} height="120" width="128">
+        <a href="{{ url_for('newpost') }}">Make New Post</a>
+        <br>
+        <br>
+        <h3>Recent Posts</h3>
+        {% for p in pp %}
+            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img src={{ user.avatar() }} width=35 height=35 ></a>{{ p }}<br>
+            <strong>Time: </strong>{{ p.timestamp }}<br><br>
+        {% endfor %}
     </div>
 {% endblock %}

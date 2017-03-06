@@ -7,6 +7,7 @@ class User(db.Model):
     nickname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     pwdhash = db.Column(db.String(54))
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
     
     def __init__(self, nickname, email, password):
         self.nickname = nickname
@@ -31,3 +32,12 @@ class User(db.Model):
 
     def __repr__(self):
        return '<User %s, Email %s, Password %s>' %(self.nickname, self.email, self.pwdhash) 
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return '%s' %(self.body)

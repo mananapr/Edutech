@@ -6,3 +6,5 @@ app/templates/.signin.html.swp
 app/templates/.profile.html.swp
 __pycache__
 app/__pycache__
+app/.forms.py.swp
+app/.models.py.swp

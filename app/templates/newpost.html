@@ -1,0 +1,16 @@
+{% extends "base_nav2.html" %}
+
+{% block content %}
+    <div id="works">
+        <form action="{{ url_for('newpost') }}" method="post" name="post">
+            {{ form.hidden_tag() }}
+        <p> 
+            {{ form.body }}<br>
+            {% for error in form.body.errors %}
+                <span style="color:red">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p><input type="submit" value="Post"></p>
+        </form>
+    </div>
+{% endblock %}
