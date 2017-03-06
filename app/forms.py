@@ -5,7 +5,7 @@ from flask import flash
 
 class SignupForm(Form):
     nickname = StringField("Nickname", [validators.Required("Please Enter Your Nickname")])
-    email = StringField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
+    email = StringField("Email",  [validators.Required("Please enter your email address.")])
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
     submit = SubmitField("Create account")
 
@@ -25,7 +25,7 @@ class SignupForm(Form):
             return True
 
 class SigninForm(Form):
-    email = StringField("Email", [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
+    email = StringField("Email", [validators.Required("Please enter your email address.")])
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
     submit = SubmitField("Sign In")
 

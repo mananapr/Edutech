@@ -7,12 +7,14 @@ class User(db.Model):
     nickname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     pwdhash = db.Column(db.String(54))
+    activation_status = db.Column(db.Boolean, index=True)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     
     def __init__(self, nickname, email, password):
         self.nickname = nickname
         self.email = email.lower()
         self.set_password(password)
+        self.activation_status = False
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
@@ -31,7 +33,7 @@ class User(db.Model):
         return "/static/userdata/avatar.png"
 
     def __repr__(self):
-       return '<User %s, Email %s, Password %s>' %(self.nickname, self.email, self.pwdhash) 
+       return '<User %s, Email %s, Activation %s>' %(self.nickname, self.email, self.activation_status) 
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
