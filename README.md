@@ -6,5 +6,5 @@ A Flask based webapp which allows users to share Educational Content.
 ##To Do List
 - <s>User Authentication</s>
 - <s>Common Navbar</s>
-- Profile Pages
+- <s>Profile Pages</s>
 - Dynamic Content
