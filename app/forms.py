@@ -39,13 +39,3 @@ class SigninForm(Form):
         else:
             self.password.errors.append("Invalud e-mail or password")
             return False
-
-class PostForm(Form):
-    body = StringField("Body", [validators.Required("Empty Posts are not Allowed")])
-    submit = SubmitField("Post")
-    
-    def validate(self):
-        if not Form.validate(self):
-            return False
-        else:
-            return True
