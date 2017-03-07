@@ -1,0 +1,16 @@
+{% extends "base_nav2.html" %}
+{% block content %}
+    <div id="works">
+        <form method="post" name="NewPass">
+            {{ form.hidden_tag()}}
+            <p> 
+                Enter New Password:<br>
+                {{ form.password }}<br>
+                {% for error in form.password.errors %}
+                    <span style="color:red">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p><input type="submit" value="Change"></p>
+        </form>
+    </div>
+{% endblock %}

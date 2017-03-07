@@ -1,17 +1,23 @@
 from flask import url_for, request, render_template, flash, session, redirect
-from .forms import SignupForm, SigninForm, PostForm
+from .forms import SignupForm, SigninForm, PostForm, RecoveryForm, NewpasswordForm
 from app import page, db, models
 from .models import User, Post
 import datetime
 from werkzeug.utils import secure_filename
-from itsdangerous import URLSafeSerializer, BadSignature
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import BadSignature
 import smtplib
 import os
 
 def get_serializer(secret_key=None):
     if secret_key is None:
         secret_key = page.secret_key
-    return URLSafeSerializer(secret_key)
+    return Serializer(secret_key, 100)
+
+def get_serializer2(secret_key=None):
+    if secret_key is None:
+        secret_key = page.secret_key
+    return Serializer(secret_key)
 
 def get_activation_link(user):
     s = get_serializer()
@@ -148,16 +154,55 @@ def removeprofile():
 
 @page.route('/users/activate/<payload>')
 def activate_user(payload):
-    s = get_serializer()
+    s = get_serializer2()
     try:
         user_id = s.loads(payload)
     except BadSignature:
-        abort(404)
+        return 'Invalid or Expired URL'
 
     user = User.query.get_or_404(user_id)
     user.activation_status = True
     db.session.commit()
     return 'User activated'
+
+@page.route('/users/changepass/<payload>', methods=['GET', 'POST'])
+def changepassword(payload):
+    form = NewpasswordForm()
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('newpass.html', form=form)
+        else:
+            s = get_serializer2()
+            try:
+                user_id = s.loads(payload)
+            except BadSignature:
+                return 'Session Expired'
+            user = User.query.get_or_404(user_id)
+            user.set_password(form.password.data)
+            db.session.commit()
+            return 'Password Changed'
+
+    elif request.method == 'GET':
+        s = get_serializer2()
+        try:
+            user_id = s.loads(payload)
+        except BadSignature:
+            return 'Invalid or Expired URL'
+        return render_template("newpass.html", form=form)
+
+@page.route('/forgotpassword', methods=['POST', 'GET'])
+def forgotpassword():
+    form = RecoveryForm()
+    if request.method == 'POST':
+        if form.validate()  == False:
+            return render_template('recovery.html', title="Forgot Password", form=form)
+        else:
+            user = User.query.filter_by(email=form.email.data).first()
+            send_mail(form.email.data, user)
+            return 'mail sent successfully'
+
+    elif request.method == 'GET':
+        return render_template('recovery.html', title="Forgot Password", form=form)
 
 @page.route('/5menu')
 def five_menu():

@@ -22,6 +22,10 @@ transition: all 0.3s ease-in-out;
 outline: none !important;
 }
 
+.flash{
+    color: red;
+}
+
 body{
 	margin: 0;
 	padding: 0;
@@ -192,6 +196,8 @@ form input#password:focus{
         </p>
         <p><input type="submit" value="Login"></p>
             </form>
+        <br>
+        <p><a href="{{ url_for('forgotpassword') }}">Forgot Password?</a></p>
 		</div>
 
   <script src='http://codepen.io/assets/libs/fullpage/jquery.js'></script>
