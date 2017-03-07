@@ -10,3 +10,4 @@ app/.forms.py.swp
 app/.models.py.swp
 app/templates/.base_nav2.html.swp
 app/templates/.register.html.swp
+app/static/userdata
