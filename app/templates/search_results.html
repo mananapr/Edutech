@@ -1,0 +1,10 @@
+{% extends "base_nav2.html" %}
+{% block content %}
+    <div id="works">
+    <h2>Results for Query: {{ query }}</h2>
+    {% for result in results %}
+        {{ result.title }}<br>
+        {{ result.body }}<br>
+    {% endfor %}
+    </div>
+{% endblock %}

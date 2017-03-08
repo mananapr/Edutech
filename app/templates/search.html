@@ -1,0 +1,15 @@
+{% extends "base_nav2.html" %}
+{% block content %}
+    <div id="works">
+        <form action="{{ url_for('search') }}" method="post" name="Search" >
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.search }}<br>
+                {% for error in form.search.errors %}
+                    <span style="color:red">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p><input type="submit" value="Search"></p>
+        </form>
+    </div>
+{% endblock %}

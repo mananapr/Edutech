@@ -59,6 +59,7 @@
             <div class="navbar-collapse  collapse">
               <ul class="nav navbar-nav navbar-right scroll">
                  <li class="active"><a href={{ url_for('index') }}>Home</a></li>
+                 <li class="active"><a href={{ url_for('search') }}>Search</a></li>
                  {% if 'email' not in session %}
                     <li class="active"><a href={{ url_for('signin') }}>Login</a></li>
                     <li class="active"><a href={{ url_for('register') }}>Register</a></li>

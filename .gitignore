@@ -1,4 +1,5 @@
 app.db
+app/__init__.pyc
 migrations/
 app/.views.py.swo
 app/static/css/.style.css.swp
@@ -11,3 +12,4 @@ app/.models.py.swp
 app/templates/.base_nav2.html.swp
 app/templates/.register.html.swp
 app/static/userdata
+whooshee/

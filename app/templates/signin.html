@@ -184,7 +184,11 @@ form input#password:focus{
             Enter Email ID:<br>
             {{ form.email(size=80) }}<br>
             {% for error in form.email.errors %}
-                <span style="color:red">[{{ error }}]</span>
+                {% if 'verified' in error %}
+                    <span style="color:red">[{{ error }}]</span><a href="{{ url_for('resendmail') }}">Resend Link?</a>
+                {% else %}
+                    <span style="color:red">[{{ error }}]</span>
+                {% endif %}
             {% endfor %}
         </p>
         <p>

@@ -1,6 +1,8 @@
 from app import db
 from werkzeug import generate_password_hash, check_password_hash
 import os
+from app import page
+from app import whooshee
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,11 +37,15 @@ class User(db.Model):
     def __repr__(self):
        return '<User %s, Email %s, Activation %s>' %(self.nickname, self.email, self.activation_status) 
 
+@whooshee.register_model('title', 'body')
 class Post(db.Model):
+    
     id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.String(140))
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
+    likes = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '%s' %(self.body)
+        return '%s' %(self.title)

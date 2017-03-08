@@ -10,7 +10,8 @@
         <a href="{{ url_for('removeprofile') }}">Remove Profile Picture</a>
         <h3>Recent Posts</h3>
         {% for p in pp %}
-            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a>{{ p }}<br>
+            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong>{{ p.title }}</strong><br>{{ p.body }}<br>
+            No. of likes: {{ p.likes }}<br>
             <strong>Time: </strong>{{ p.timestamp }}<br><br>
         {% endfor %}
     </div>

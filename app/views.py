@@ -1,5 +1,5 @@
 from flask import url_for, request, render_template, flash, session, redirect
-from .forms import SignupForm, SigninForm, PostForm, RecoveryForm, NewpasswordForm
+from .forms import SearchForm, SignupForm, SigninForm, PostForm, RecoveryForm, NewpasswordForm
 from app import page, db, models
 from .models import User, Post
 import datetime
@@ -8,6 +8,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import BadSignature
 import smtplib
 import os
+from flask_whooshee import WhoosheeQuery
 
 def get_serializer(secret_key=None):
     if secret_key is None:
@@ -113,7 +114,8 @@ def newpost():
         else:
             cur_user = User.query.filter_by(email = session['email']).first()
             post_body = form.body.data
-            new = models.Post(body=post_body, timestamp=datetime.datetime.utcnow(), author=cur_user)
+            post_title = form.title.data
+            new = models.Post(title=post_title, body=post_body, timestamp=datetime.datetime.utcnow(), likes=0, author=cur_user)
             db.session.add(new)
             db.session.commit()
             flash("Post Successfull")
@@ -203,6 +205,38 @@ def forgotpassword():
 
     elif request.method == 'GET':
         return render_template('recovery.html', title="Forgot Password", form=form)
+
+@page.route('/resendmail', methods=['POST', 'GET'])
+def resendmail():
+    form = RecoveryForm()
+    if request.method == 'POST':
+        if form.validate()  == False:
+            return render_template('resend.html', title="Forgot Password", form=form)
+        else:
+            user = User.query.filter_by(email=form.email.data).first()
+            send_mail(form.email.data, user)
+            return 'mail sent successfully'
+
+    elif request.method == 'GET':
+        return render_template('resend.html', title="Resend Mail", form=form)
+
+@page.route('/search', methods=['GET', 'POST'])
+def search():
+    form = SearchForm()
+    
+    if request.method == 'POST':
+        if form.validate()  == False:
+            return render_template('search.html', title="Search", form=form)
+        else:
+            q = form.search.data
+            return redirect(url_for('search_results', query=q))
+    elif request.method == 'GET':
+        return render_template('search.html', title="Search", form=form)
+
+@page.route('/search_results/<query>')
+def search_results(query):
+    results = Post.query.whooshee_search(query).all()
+    return render_template('search_results.html', title="Search Results", query=query, results=results)
 
 @page.route('/5menu')
 def five_menu():

@@ -53,6 +53,7 @@ class SigninForm(Form):
             return False
 
 class PostForm(Form):
+    title = StringField("Title", [validators.Required("Title cannot be empty")])
     body = StringField("Body", [validators.Required("Body cannot be empty")])
     submit = SubmitField("Post")
 
@@ -65,10 +66,29 @@ class RecoveryForm(Form):
     email = StringField("Email", [validators.Required("Please enter your email address.")])
     submit = SubmitField("Send Mail")
 
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        user = User.query.filter_by(email = self.email.data.lower()).first()
+        if not user:
+            self.email.errors.append("Email not found")
+            return False
+        else:
+            return True
+
 class NewpasswordForm(Form):
     password = PasswordField('Password', [validators.Required("Please enter a password.")])
     submit = SubmitField("Reset")
 
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        return True
+
+class SearchForm(Form):
+    search = StringField("Search", [validators.Required("This cant be empty.")])
+    submit = SubmitField("Search")
+    
     def validate(self):
         if not Form.validate(self):
             return False
