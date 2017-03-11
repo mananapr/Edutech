@@ -1,7 +1,7 @@
 from wtforms import SubmitField, StringField, validators, PasswordField
 from flask_wtf import Form
 from .models import User 
-from flask import flash
+from flask import flash, session
 import re
 
 class SignupForm(Form):
@@ -53,7 +53,6 @@ class SigninForm(Form):
             return False
 
 class PostForm(Form):
-    title = StringField("Title", [validators.Required("Title cannot be empty")])
     body = StringField("Body", [validators.Required("Body cannot be empty")])
     submit = SubmitField("Post")
 
@@ -93,3 +92,33 @@ class SearchForm(Form):
         if not Form.validate(self):
             return False
         return True
+
+class ChangeNickForm(Form):
+    nickname = StringField("Search", [validators.Required("This cant be empty.")])
+    password = PasswordField('Password', [validators.Required("Please enter a password.")])
+    submit = SubmitField("Change")
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        user = User.query.filter_by(nickname = session['nick']).first()
+        if user and user.check_password(self.password.data):
+            return True
+        else:
+            self.password.errors.append("Wrong password")
+            return False
+
+class ChangePasswordForm(Form):
+    old_password = PasswordField('Password', [validators.Required("Please enter a password.")])
+    new_password = PasswordField('Password', [validators.Required("Please enter a password.")])
+    submit = SubmitField("Change")
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        user = User.query.filter_by(nickname = session['nick']).first()
+        if user and user.check_password(self.old_password.data):
+            return True
+        else:
+            self.old_password.errors.append("Wrong password")
+            return False

@@ -1,0 +1,9 @@
+{% extends "base_nav2.html" %}
+
+{% block content %}
+    <div id="works">
+        <h2>Account Settings</h2>
+        <li><a href="{{ url_for('changepassword') }}">Change Password</a></li>
+        <li><a href="{{ url_for('changenickname') }}">Change Nickname</a></li>
+    </div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base_nav2.html" %}
+
+{% block content %}
+    <div id="works">
+    <form action="{{ url_for('changenickname') }}" method="post" name="Change Nickname">
+        {{ form.hidden_tag() }}
+    <p>
+        Enter Nickname:<br>
+        {{ form.nickname }}
+        {% for error in form.nickname.errors %}
+            <span style="color:red">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        Enter Password:<br>
+        {{ form.password }}<br>
+        {% for error in form.password.errors %}
+            <span style="color:red">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p><input type="submit" value="Change"></p>
+    </form>
+    </div>
+{% endblock %}

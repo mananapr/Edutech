@@ -5,14 +5,25 @@
         <h2>Profile</h2>
         <h2>This is {{ user.nickname.title() }}'s Profile Page</h2>
         <img class="img-circle" src={{ user.avatar() }} height="120" width="128"><br>
+        <strong>Followers</strong>: {{ user.flwrs }}<br>
+        {% if me.is_following(user) %}
+            <a href="{{ url_for('unfollow', nickname=user.nickname) }}">Unfollow</a><br>
+        {% else %}
+            <a href="{{ url_for('follow', nickname=user.nickname) }}">Follow</a><br>
+        {% endif %}
         <a href="{{ url_for('newpost') }}">Make New Post</a><br>
         <a href="{{ url_for('changeprofile') }}">Change Profile Picture</a><br>
         <a href="{{ url_for('removeprofile') }}">Remove Profile Picture</a>
         <h3>Recent Posts</h3>
         {% for p in pp %}
-            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong>{{ p.title }}</strong><br>{{ p.body }}<br>
-            No. of likes: {{ p.likes }}<br>
-            <strong>Time: </strong>{{ p.timestamp }}<br><br>
+            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong><a href={{ p.link }}>{{ p.title }}</strong><br><img src="{{ p.image }}" width=300 height=100></a><br>{{ p.body }}<br>
+            <strong>No. of likes:</strong> {{ p.likes }}<br>
+            <strong>Time: </strong>{{ p.timestamp }}<br>
+            {% if me.has_liked(p.id) %}
+                <a href="{{ url_for('undoupvote', post_id=p.id, user_id=session['id']) }}">Undo Like</a><br>
+            {% else %}
+                <a href="{{ url_for('upvote', post_id=p.id, user_id=session['id']) }}">Like</a><br><br>
+            {% endif %}
         {% endfor %}
     </div>
 {% endblock %}

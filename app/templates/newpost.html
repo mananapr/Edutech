@@ -4,15 +4,8 @@
     <div id="works">
         <form action="{{ url_for('newpost') }}" method="post" name="post">
             {{ form.hidden_tag() }}
-        <p>
-            Title:<br>
-            {{ form.title }}<br>
-            {% for error in form.title.errors %}
-                <span style="color:red">[{{ error }}]</span>
-            {% endfor %}
-        </p>
         <p> 
-            Body:<br>
+            Link:<br>
             {{ form.body }}<br>
             {% for error in form.body.errors %}
                 <span style="color:red">[{{ error }}]</span>

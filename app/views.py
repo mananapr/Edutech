@@ -1,7 +1,7 @@
-from flask import url_for, request, render_template, flash, session, redirect
-from .forms import SearchForm, SignupForm, SigninForm, PostForm, RecoveryForm, NewpasswordForm
-from app import page, db, models
-from .models import User, Post
+from flask import make_response, url_for, request, render_template, flash, session, redirect
+from .forms import ChangeNickForm, ChangePasswordForm, SearchForm, SignupForm, SigninForm, PostForm, RecoveryForm, NewpasswordForm
+from app import authomatic, page, db, models
+from .models import User, Post, Like
 import datetime
 from werkzeug.utils import secure_filename
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -9,6 +9,8 @@ from itsdangerous import BadSignature
 import smtplib
 import os
 from flask_whooshee import WhoosheeQuery
+from authomatic.adapters import WerkzeugAdapter
+from newspaper import Article
 
 def get_serializer(secret_key=None):
     if secret_key is None:
@@ -38,6 +40,22 @@ def send_mail(address, user):
 def index():
     return render_template('index.html', title='Home')
 
+@page.route('/login/<provider_name>/', methods=['GET', 'POST'])
+def login(provider_name):
+    response = make_response()
+
+    # Authenticate the user
+    result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
+
+    if result:
+        if result.user:
+            # Get user info
+            result.user.update()
+        return render_template(user_name=result.user.name,
+                               user_email=result.user.email,
+                               user_id=result.user.id)
+    return response
+
 @page.route('/register', methods=['GET', 'POST'])
 def register():
     form = SignupForm()
@@ -48,6 +66,8 @@ def register():
         else:
             newuser = User(form.nickname.data, form.email.data, form.password.data)
             db.session.add(newuser)
+            db.session.commit()
+            db.session.add(newuser.follow(newuser))
             db.session.commit()
             newuser.make_dirs()
 
@@ -66,6 +86,7 @@ def profile(nick):
         return redirect(url_for('signin'))
 
     user = User.query.filter_by(nickname=nick).first()
+    me = User.query.filter_by(nickname=session['nick']).first()
 
     if user is None:
         return redirect(url_for('signin'))
@@ -74,11 +95,14 @@ def profile(nick):
         posts = Post.query.order_by(Post.timestamp.desc())
         posts = posts.filter_by(author=user)
 
-        return render_template('profile.html', title="Profile", user=user, pp=posts)
+        return render_template('profile.html', title="Profile", user=user, pp=posts, me=me)
 
 @page.route('/signin', methods=['GET', 'POST'])
 def signin():
     form = SigninForm()
+
+    if 'email' in session:
+        return redirect(url_for('index'))
 
     if request.method == 'POST':
         if form.validate() == False:
@@ -87,6 +111,7 @@ def signin():
             session['email'] = form.email.data
             user = User.query.filter_by(email = form.email.data.lower()).first()
             session['nick'] = user.nickname
+            session['id'] = user.id
             
             return redirect(url_for('profile', nick=user.nickname))
 
@@ -99,6 +124,7 @@ def signout():
         return redirect(url_for('signin'))
     session.pop('email', None)
     session.pop('nick', None)
+    session.pop('id', None)
     return redirect(url_for('index'))
 
 @page.route('/newpost', methods=['GET', 'POST'])
@@ -113,9 +139,17 @@ def newpost():
             return render_template('newpost.html', title="New Post", form=form)
         else:
             cur_user = User.query.filter_by(email = session['email']).first()
-            post_body = form.body.data
-            post_title = form.title.data
-            new = models.Post(title=post_title, body=post_body, timestamp=datetime.datetime.utcnow(), likes=0, author=cur_user)
+            link = form.body.data
+            article = Article(url=link)
+            article.download()
+            article.parse()
+            post_body = article.text[:160]+'...'
+            post_title = article.title
+            if len(str(article.top_image)) > 0:
+                img_addr = str(article.top_image)
+            else:
+                img_addr = '/static/userdata/avatar.png'
+            new = models.Post(title=post_title, body=post_body, timestamp=datetime.datetime.utcnow(), link=link, image=img_addr, likes=0, author=cur_user)
             db.session.add(new)
             db.session.commit()
             flash("Post Successfull")
@@ -168,7 +202,7 @@ def activate_user(payload):
     return 'User activated'
 
 @page.route('/users/changepass/<payload>', methods=['GET', 'POST'])
-def changepassword(payload):
+def changepass(payload):
     form = NewpasswordForm()
     if request.method == 'POST':
         if form.validate() == False:
@@ -232,6 +266,121 @@ def search():
             return redirect(url_for('search_results', query=q))
     elif request.method == 'GET':
         return render_template('search.html', title="Search", form=form)
+
+@page.route('/upvote/<int:post_id>/<int:user_id>')
+def upvote(post_id, user_id):
+    post = Post.query.filter_by(id = post_id).first()
+    user = User.query.filter_by(id = user_id).first()
+
+    res = Like.query.filter_by(post_id = post_id).all()
+
+    for r in res:
+        if r.user_id == user_id:
+            return 'You cannot like this post again'
+
+    like = Like(user.id, post.id)
+    post.likes = post.likes + 1
+    db.session.add(like)
+    db.session.commit()
+
+    return redirect(url_for('profile', nick=post.author.nickname))
+
+@page.route('/undoupvote/<int:post_id>/<int:user_id>')
+def undoupvote(post_id, user_id):
+    post = Post.query.filter_by(id = post_id).first()
+    user = User.query.filter_by(id = user_id).first()
+
+    res = Like.query.filter_by(post_id = post_id).all()
+
+    for r in res:
+        if r.user_id == user_id:
+            post.likes = post.likes - 1
+            db.session.delete(r)
+            db.session.commit()
+            session['flag'] = False
+            return redirect(url_for('profile', nick=post.author.nickname))
+
+    return 'You cannot dislike this post again'
+
+@page.route('/follow/<nickname>')
+def follow(nickname):
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+    user = User.query.filter_by(nickname=nickname).first()
+    me = User.query.filter_by(nickname=session['nick']).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('index'))
+    if user == me:
+        flash('You can\'t follow yourself!')
+        return redirect(url_for('profile', nick=nickname))
+    u = me.follow(user)
+    if u is None:
+        flash('Cannot follow ' + nickname + '.')
+        return redirect(url_for('profile', nick=nickname))
+    db.session.add(u)
+    db.session.commit()
+    flash('You are now following ' + nickname + '!')
+    return redirect(url_for('profile', nick=nickname))
+
+@page.route('/unfollow/<nickname>')
+def unfollow(nickname):
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+    user = User.query.filter_by(nickname=nickname).first()
+    me = User.query.filter_by(nickname=session['nick']).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('index'))
+    if user == me:
+        flash('You can\'t unfollow yourself!')
+        return redirect(url_for('profile', nick=nickname))
+    u = me.unfollow(user)
+    if u is None:
+        flash('Cannot unfollow ' + nickname + '.')
+        return redirect(url_for('profile', nick=nickname))
+    db.session.add(u)
+    db.session.commit()
+    flash('You have stopped following ' + nickname + '.')
+    return redirect(url_for('profile', nick=nickname))
+
+@page.route('/settings')
+def settings():
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+    return render_template('settings.html', title="Account Settings")
+
+@page.route('/changepassword', methods=['POST', 'GET'])
+def changepassword():
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+    form = ChangePasswordForm()
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('changepassword.html', title="Change Password", form=form)
+        else:
+            user = User.query.filter_by(nickname=session['nick']).first()
+            user.set_password(form.new_password.data)
+            db.session.commit()
+            return redirect(url_for('profile', nick=session['nick']))
+    elif request.method == 'GET':
+        return render_template('changepassword.html', title="Change Password", form=form)
+
+@page.route('/changenickname', methods=['POST', 'GET'])
+def changenickname():
+    form = ChangeNickForm()
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+    if request.method == 'POST':
+        if form.validate() == False:
+            return render_template('changenick.html', title="Change Nickname", form=form)
+        else:
+            user = User.query.filter_by(nickname=session['nick']).first()
+            user.nickname = form.nickname.data
+            db.session.commit()
+            return redirect(url_for('profile', nick=session['nick']))
+    elif request.method == 'GET':
+        return render_template('changenick.html', title="Change Nickname", form=form)
 
 @page.route('/search_results/<query>')
 def search_results(query):
