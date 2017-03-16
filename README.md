@@ -8,5 +8,5 @@ A Flask based webapp which allows users to share Educational Content.
 - <s>Common Navbar</s>
 - <s>Profile Pages</s>
 - <s>Dynamic Content</s>
-- Share Feature
+- <s>Share Feature</s>
 - <s>Bookmark Feature</s>
