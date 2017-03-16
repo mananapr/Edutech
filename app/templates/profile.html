@@ -22,6 +22,7 @@
             <strong>#{{ p.category }}</strong><br>
             <strong>No. of likes:</strong> {{ p.likes }}<br>
             <strong>Time: </strong>{{ p.timestamp }}<br>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ p.link }} target="_blank"">Share on Facebook<a><br>
             {% if me.has_bookmarked(p.id) %}
                 <a href="{{ url_for('undobookmark', post_id=p.id, user_id=session['id']) }}">Undo Bookmark</a><br>
             {% else %}
