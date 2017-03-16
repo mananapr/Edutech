@@ -1,4 +1,4 @@
-from wtforms import SubmitField, StringField, validators, PasswordField
+from wtforms import SelectField, SubmitField, StringField, validators, PasswordField
 from flask_wtf import Form
 from .models import User 
 from flask import flash, session
@@ -54,6 +54,8 @@ class SigninForm(Form):
 
 class PostForm(Form):
     body = StringField("Body", [validators.Required("Body cannot be empty")])
+    myChoices = [('5 Minutes', '5 Minutes'), ('10 Minutes', '10 Minutes')]
+    category = SelectField(label='Category', coerce=str, choices = myChoices)
     submit = SubmitField("Post")
 
     def validate(self):

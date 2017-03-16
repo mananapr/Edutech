@@ -11,14 +11,22 @@
         {% else %}
             <a href="{{ url_for('follow', nickname=user.nickname) }}">Follow</a><br>
         {% endif %}
-        <a href="{{ url_for('newpost') }}">Make New Post</a><br>
-        <a href="{{ url_for('changeprofile') }}">Change Profile Picture</a><br>
-        <a href="{{ url_for('removeprofile') }}">Remove Profile Picture</a>
+        {% if me.nickname == user.nickname %}
+            <a href="{{ url_for('newpost') }}">Make New Post</a><br>
+            <a href="{{ url_for('changeprofile') }}">Change Profile Picture</a><br>
+            <a href="{{ url_for('removeprofile') }}">Remove Profile Picture</a>
+        {% endif %}
         <h3>Recent Posts</h3>
         {% for p in pp %}
             <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong><a href={{ p.link }} target="_blank">{{ p.title }}</strong><br><img src="{{ p.image }}" width=300 height=100></a><br>{{ p.body }}<br>
+            <strong>#{{ p.category }}</strong><br>
             <strong>No. of likes:</strong> {{ p.likes }}<br>
             <strong>Time: </strong>{{ p.timestamp }}<br>
+            {% if me.has_bookmarked(p.id) %}
+                <a href="{{ url_for('undobookmark', post_id=p.id, user_id=session['id']) }}">Undo Bookmark</a><br>
+            {% else %}
+                <a href="{{ url_for('bookmark', post_id=p.id, user_id=session['id']) }}">Bookmark</a><br>
+            {% endif %}
             {% if me.has_liked(p.id) %}
                 <a href="{{ url_for('undoupvote', post_id=p.id, user_id=session['id']) }}">Undo Like</a><br>
             {% else %}

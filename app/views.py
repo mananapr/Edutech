@@ -1,7 +1,7 @@
 from flask import make_response, url_for, request, render_template, flash, session, redirect
 from .forms import ChangeNickForm, ChangePasswordForm, SearchForm, SignupForm, SigninForm, PostForm, RecoveryForm, NewpasswordForm
 from app import authomatic, page, db, models
-from .models import User, Post, Like
+from .models import Bookmark, User, Post, Like
 import datetime
 from werkzeug.utils import secure_filename
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -44,7 +44,6 @@ def index():
 def login(provider_name):
     response = make_response()
 
-    # Authenticate the user
     result = authomatic.login(WerkzeugAdapter(request, response), provider_name)
 
     if result:
@@ -65,6 +64,8 @@ def register():
             return render_template('register.html', title='Register', form=form)
         else:
             newuser = User(form.nickname.data, form.email.data, form.password.data)
+
+            send_mail(newuser.email, newuser)
             db.session.add(newuser)
             db.session.commit()
             db.session.add(newuser.follow(newuser))
@@ -72,9 +73,6 @@ def register():
             newuser.make_dirs()
 
             flash('Registration Successfull')
-            
-            send_mail(newuser.email, newuser)
-            
             return redirect(url_for('signin')) 
 
     elif request.method == 'GET':
@@ -106,7 +104,7 @@ def signin():
 
     if request.method == 'POST':
         if form.validate() == False:
-            return render_template('signin.html', form=form)
+            return render_template('signin.html', title="Sign In", form=form)
         else:
             session['email'] = form.email.data
             user = User.query.filter_by(email = form.email.data.lower()).first()
@@ -129,7 +127,7 @@ def signout():
 
 @page.route('/newpost', methods=['GET', 'POST'])
 def newpost():
-    form = PostForm()
+    form = PostForm(select=1)
 
     if 'email' not in session:
         return redirect(url_for('signin'))
@@ -149,7 +147,7 @@ def newpost():
                 img_addr = str(article.top_image)
             else:
                 img_addr = '/static/userdata/avatar.png'
-            new = models.Post(title=post_title, body=post_body, timestamp=datetime.datetime.utcnow(), link=link, image=img_addr, likes=0, author=cur_user)
+            new = models.Post(title=post_title, body=post_body, timestamp=datetime.datetime.utcnow(), link=link, image=img_addr, likes=0, category=form.category.data, author=cur_user)
             db.session.add(new)
             db.session.commit()
             flash("Post Successfull")
@@ -285,6 +283,23 @@ def upvote(post_id, user_id):
 
     return redirect(url_for('profile', nick=post.author.nickname))
 
+@page.route('/bookmark/<int:post_id>/<int:user_id>')
+def bookmark(post_id, user_id):
+    post = Post.query.filter_by(id = post_id).first()
+    user = User.query.filter_by(id = user_id).first()
+
+    res = Bookmark.query.filter_by(post_id = post_id).all()
+    
+    for r in res:
+        if r.user_id == user_id:
+             return 'You cannot bookmark this post again'
+
+    bm = Bookmark(user.id, post.id)
+    db.session.add(bm)
+    db.session.commit()
+
+    return redirect(url_for('profile', nick=post.author.nickname))
+
 @page.route('/undoupvote/<int:post_id>/<int:user_id>')
 def undoupvote(post_id, user_id):
     post = Post.query.filter_by(id = post_id).first()
@@ -297,10 +312,24 @@ def undoupvote(post_id, user_id):
             post.likes = post.likes - 1
             db.session.delete(r)
             db.session.commit()
-            session['flag'] = False
             return redirect(url_for('profile', nick=post.author.nickname))
 
     return 'You cannot dislike this post again'
+
+@page.route('/undobookmark/<int:post_id>/<int:user_id>')
+def undobookmark(post_id, user_id):
+    post = Post.query.filter_by(id = post_id).first()
+    user = User.query.filter_by(id = user_id).first()
+
+    res = Bookmark.query.filter_by(post_id = post_id).all()
+
+    for r in res:
+        if r.user_id == user_id:
+           db.session.delete(r)
+           db.session.commit()
+           return redirect(url_for('profile', nick=post.author.nickname))
+
+    return 'You cannot delete bookmark again'
 
 @page.route('/follow/<nickname>')
 def follow(nickname):
@@ -386,6 +415,27 @@ def changenickname():
 def search_results(query):
     results = Post.query.whooshee_search(query).all()
     return render_template('search_results.html', title="Search Results", query=query, results=results)
+
+@page.route('/bookmarks')
+def bookmarks():
+    if 'email' in session:
+        b = []
+        me = User.query.filter_by(nickname = session['nick']).first()
+        posts = Post.query.all()
+        for p in posts:
+            if me.has_bookmarked(p.id):
+                b.append(p)
+        return render_template('bookmarks.html', bms = b)
+    else:
+        return redirect(url_for('signin'))
+
+@page.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', title="Not Found"), 404
+
+@page.errorhandler(500)
+def internal_error(e):
+    return render_template('500.html', Title="Server Error"), 500
 
 @page.route('/5menu')
 def five_menu():

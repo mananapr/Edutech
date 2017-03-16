@@ -11,6 +11,13 @@
                 <span style="color:red">[{{ error }}]</span>
             {% endfor %}
         </p>
+        <p>
+            Category:<br>
+            {{ form.category }}<br>
+            {% for error in form.category.errors %}
+                <span style="color:red">[{{ error }}]</span>
+            {% endfor %}
+        </p>
         <p><input type="submit" value="Post"></p>
         </form>
     </div>

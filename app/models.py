@@ -50,13 +50,18 @@ class User(db.Model):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
 
     def has_liked(self, post_id):
-        post = Post.query.filter_by(id = post_id).first()
         res = Like.query.filter_by(post_id = post_id).all()
         for r in res:
             if r.user_id == self.id:
                 return True
-            else:
-                return False
+        return False
+
+    def has_bookmarked(self, post_id):
+        res = Bookmark.query.filter_by(post_id = post_id).all()
+        for r in res:
+            if r.user_id == self.id:
+                return True
+        return False
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
@@ -86,12 +91,25 @@ class Post(db.Model):
     image = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
     likes = db.Column(db.Integer)
+    category = db.Column(db.String(140)) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
         return '%s' %(self.title)
 
 class Like(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer)
+    post_id = db.Column(db.Integer)
+
+    def __init__(self, user_id, post_id):
+        self.user_id = user_id
+        self.post_id = post_id
+
+    def __repr__(self):
+        return '%s, %s' %(self.post_id, self.user_id)
+
+class Bookmark(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer)
     post_id = db.Column(db.Integer)

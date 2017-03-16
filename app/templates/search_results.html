@@ -2,9 +2,8 @@
 {% block content %}
     <div id="works">
     <h2>Results for Query: {{ query }}</h2>
-    {% for result in results %}
-        {{ result.title }}<br>
-        {{ result.body }}<br>
+    {% for p in results %}
+        <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ p.author.avatar() }} width=35 height=35 ></a><br><strong><a href={{ p.link }} target="_blank">{{ p.title }}</strong><br><img src="{{ p.image }}" width=300 height=100></a><br>{{ p.body }}<br><br>
     {% endfor %}
     </div>
 {% endblock %}
