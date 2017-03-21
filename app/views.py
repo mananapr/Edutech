@@ -100,7 +100,8 @@ def register():
         return render_template('register.html', title="Register", form=form)
 
 @page.route('/profile/<nick>')
-def profile(nick):
+@page.route('/profile/<nick>/<int:page>')
+def profile(nick, page=1):
     if 'email' not in session:
         return redirect(url_for('signin'))
 
@@ -113,8 +114,9 @@ def profile(nick):
         user = User.query.filter_by(nickname=nick).first()
         posts = Post.query.order_by(Post.timestamp.desc())
         posts = posts.filter_by(author=user)
+        pp = posts.paginate(page,3,False)
 
-        return render_template('profile.html', title="Profile", user=user, pp=posts, me=me)
+        return render_template('profile.html', title="Profile", user=user, pp=pp, me=me)
 
 @page.route('/signin', methods=['GET', 'POST'])
 def signin():
@@ -132,7 +134,7 @@ def signin():
             session['nick'] = user.nickname
             session['id'] = user.id
             
-            return redirect(url_for('profile', nick=user.nickname))
+            return redirect(url_for('profile', nick=user.nickname, page=1))
 
     elif request.method == 'GET':
         return render_template('signin.html', title="Sign In", form=form)

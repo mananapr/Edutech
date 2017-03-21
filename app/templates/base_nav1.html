@@ -36,7 +36,7 @@
     <div class="navbar-header">
       <a class="navbar-brand page-scroll" href="#page-top">EdTech</a>
       {% if 'email' in session %}
-          <a class="navbar-brand page-scroll" href={{ url_for('profile', nick=session['nick']) }}>Profile</a></div>
+          <a class="navbar-brand page-scroll" href={{ url_for('profile', nick=session['nick'], page=1) }}>Profile</a></div>
           <a class="navbar-brand page-scroll" href={{ url_for('signout') }}>SignOut</a></div>
       {% else %}
           <a class="navbar-brand page-scroll" href={{ url_for('signin') }}>Sign In</a>

@@ -17,7 +17,7 @@
             <a href="{{ url_for('removeprofile') }}">Remove Profile Picture</a>
         {% endif %}
         <h3>Recent Posts</h3>
-        {% for p in pp %}
+        {% for p in pp.items %}
             <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong><a href="{{ p.link }}" target="_blank">{{ p.title }}</strong><br><img src="{{ p.image }}" width=300 height=100></a><br>{{ p.body }}<br>
             <strong>#{{ p.category }}</strong><br>
             <strong>No. of likes:</strong> {{ p.likes }}<br>
@@ -34,5 +34,16 @@
                 <a href="{{ url_for('upvote', post_id=p.id, user_id=session['id']) }}">Like</a><br><br>
             {% endif %}
         {% endfor %}
+        <br>
+        {% if pp.has_prev %}
+            <a href="{{ url_for('profile', nick=user.nickname, page=pp.prev_num) }}">Newer Posts</a>
+        {% else %}
+            Newer Posts
+        {% endif %} |  
+        {% if pp.has_next %}
+            <a href="{{ url_for('profile', nick=user.nickname, page=pp.next_num) }}">Old posts</a>
+        {% else %}
+            Older Posts
+        {% endif %}
     </div>
 {% endblock %}
