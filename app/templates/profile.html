@@ -18,11 +18,11 @@
         {% endif %}
         <h3>Recent Posts</h3>
         {% for p in pp %}
-            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong><a href={{ p.link }} target="_blank">{{ p.title }}</strong><br><img src="{{ p.image }}" width=300 height=100></a><br>{{ p.body }}<br>
+            <a href="{{ url_for('profile', nick=p.author.nickname) }}"><img class="img-circle" src={{ user.avatar() }} width=35 height=35 ></a><br><strong><a href="{{ p.link }}" target="_blank">{{ p.title }}</strong><br><img src="{{ p.image }}" width=300 height=100></a><br>{{ p.body }}<br>
             <strong>#{{ p.category }}</strong><br>
             <strong>No. of likes:</strong> {{ p.likes }}<br>
             <strong>Time: </strong>{{ p.timestamp }}<br>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={{ p.link }} target="_blank"">Share on Facebook<a><br>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ p.link }}" target="_blank">Share on Facebook<a><br>
             {% if me.has_bookmarked(p.id) %}
                 <a href="{{ url_for('undobookmark', post_id=p.id, user_id=session['id']) }}">Undo Bookmark</a><br>
             {% else %}

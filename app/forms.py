@@ -54,7 +54,7 @@ class SigninForm(Form):
 
 class PostForm(Form):
     body = StringField("Body", [validators.Required("Body cannot be empty")])
-    myChoices = [('5 Minutes', '5 Minutes'), ('10 Minutes', '10 Minutes')]
+    myChoices = [('5 Minutes', '5 Minutes'), ('15 Minutes', '15 Minutes'), ('30 Minutes', '30 Minutes'), ('Long', 'Long')]
     category = SelectField(label='Category', coerce=str, choices = myChoices)
     submit = SubmitField("Post")
 

@@ -1,0 +1,16 @@
+{% extends "base_nav2.html" %}
+{% block content %}
+<!-- #Header Starts -->
+<!-- works -->
+<div id="works"  class=" clearfix grid"> 
+    {% for p in posts %}
+    <figure class="effect-oscar  wowload fadeIn">
+        <img src="{{ p.image }}" alt="img01"/>
+        <figcaption>
+            <h4>{{ p.title }}</h4><br>
+            <p><a href="{{ p.link }}" target="_blank" title="1" data-gallery>View more</a></p>            
+        </figcaption>
+    </figure>
+    {% endfor %}
+</div>
+{% endblock %}

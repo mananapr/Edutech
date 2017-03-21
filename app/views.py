@@ -7,10 +7,11 @@ from werkzeug.utils import secure_filename
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import BadSignature
 import smtplib
-import os
+import requests, os
 from flask_whooshee import WhoosheeQuery
 from authomatic.adapters import WerkzeugAdapter
 from newspaper import Article
+from readability import Document
 
 def get_serializer(secret_key=None):
     if secret_key is None:
@@ -27,12 +28,33 @@ def get_activation_link(user):
     payload = s.dumps(user.id)
     return url_for('activate_user', payload=payload, _external=True)
 
-def send_mail(address, user):
+def get_change_link(user):
+    s = get_serializer()
+    payload = s.dumps(user.id)
+    return url_for('changepass', payload=payload, _external=True)
+
+def send_mail_reg(address, user):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login("EMAIL", "PASS")
     msg = "click this link to confirm: " + str(get_activation_link(user)) 
     server.sendmail("EMAIL", address, msg)
+    server.quit()
+
+def send_mail_pass(address, user):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("EMAIL", "PASS")
+    msg = "click this link to change: " + str(get_change_link(user))
+    server.sendmail("EMAIL", address, msg)
+    server.quit()
+
+def send_mail_report(post):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("EMAIL1", "PASS")
+    msg = "This post was reported: " + str(post.link)
+    server.sendmail("EMAIL1", "EMAIL2", msg)
     server.quit()
 
 @page.route('/')
@@ -48,7 +70,6 @@ def login(provider_name):
 
     if result:
         if result.user:
-            # Get user info
             result.user.update()
         return render_template(user_name=result.user.name,
                                user_email=result.user.email,
@@ -232,7 +253,7 @@ def forgotpassword():
             return render_template('recovery.html', title="Forgot Password", form=form)
         else:
             user = User.query.filter_by(email=form.email.data).first()
-            send_mail(form.email.data, user)
+            send_mail_pass(form.email.data, user)
             return 'mail sent successfully'
 
     elif request.method == 'GET':
@@ -246,7 +267,7 @@ def resendmail():
             return render_template('resend.html', title="Forgot Password", form=form)
         else:
             user = User.query.filter_by(email=form.email.data).first()
-            send_mail(form.email.data, user)
+            send_mail_reg(form.email.data, user)
             return 'mail sent successfully'
 
     elif request.method == 'GET':
@@ -429,6 +450,15 @@ def bookmarks():
     else:
         return redirect(url_for('signin'))
 
+@page.route('/report/<post_id>')
+def report(post_id):
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+
+    post = Post.query.filter_by(id = post_id).first()
+    send_mail_report(post)
+    return "The Post has been reported. We will look into it"
+
 @page.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', title="Not Found"), 404
@@ -439,16 +469,20 @@ def internal_error(e):
 
 @page.route('/5menu')
 def five_menu():
-    return render_template('5menu.html', title="5 Minutes")
+    posts = Post.query.filter_by(category = "5 Minutes").all()
+    return render_template('menus.html', title="5 Minutes", posts=posts)
 
 @page.route('/15menu')
 def fifteen_menu():
-    return render_template('15menu.html', title="15 Minutes")
+    posts = Post.query.filter_by(category = "15 Minutes").all()
+    return render_template('menus.html', title="15 Minutes", posts=posts)
 
 @page.route('/30menu')
 def thirty_menu():
-    return render_template('30menu.html', title="30 Minutes")
+    posts = Post.query.filter_by(category = "30 Minutes").all()
+    return render_template('menus.html', title="30 Minutes")
 
 @page.route('/imenu')
 def imenu():
-    return render_template('imenu.html', title="Time is no Barrier")
+    posts = Post.query.filter_by(category = "Long").all()
+    return render_template('menus.html', title="Time is no Barrier")
