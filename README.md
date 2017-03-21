@@ -10,3 +10,4 @@ A Flask based webapp which allows users to share Educational Content.
 - <s>Dynamic Content</s>
 - <s>Share Feature</s>
 - <s>Bookmark Feature</s>
+- Pagination
