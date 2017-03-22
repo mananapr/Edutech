@@ -133,6 +133,7 @@ def signin():
             user = User.query.filter_by(email = form.email.data.lower()).first()
             session['nick'] = user.nickname
             session['id'] = user.id
+            session['avatar'] = user.avatar()
             
             return redirect(url_for('profile', nick=user.nickname, page=1))
 
@@ -146,6 +147,7 @@ def signout():
     session.pop('email', None)
     session.pop('nick', None)
     session.pop('id', None)
+    session.pop('avatar', None)
     return redirect(url_for('index'))
 
 @page.route('/newpost', methods=['GET', 'POST'])

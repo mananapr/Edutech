@@ -64,10 +64,10 @@
                     <li class="active"><a href={{ url_for('signin') }}>Login</a></li>
                     <li class="active"><a href={{ url_for('register') }}>Register</a></li>
                  {% else %}
-                    <li class="active"><a href={{ url_for('profile', nick=session['nick'], page=1) }}>Profile</a></li>
                     <li class="active"><a href={{ url_for('bookmarks') }}>Bookmarks</a></li>
                     <li class="active"><a href={{ url_for('settings') }}>Settings</a></li>
                     <li class="active"><a href={{ url_for('signout') }}>Logout</a></li>
+                    <li class="active"><a href={{ url_for('profile', nick=session['nick'], page=1) }}><img class="img-circle" src={{ session['avatar'] }} width=35 height=35></a></li>
                  {% endif %}
 
               </ul>

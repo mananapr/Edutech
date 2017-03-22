@@ -2,12 +2,12 @@
 {% block content %}
 <!-- #Header Starts -->
 <!-- works -->
-<div id="works"  class=" clearfix grid"> 
+<div style="padding:8em;" id="works"  class="clearfix grid"> 
     {% for p in posts %}
     <figure class="effect-oscar  wowload fadeIn">
         <img src="{{ p.image }}" alt="img01"/>
         <figcaption>
-            <h4>{{ p.title }}</h4><br>
+            <h2>{{ p.title }}</h2><br>
             <p><a href="{{ p.link }}" target="_blank" title="1" data-gallery>View more</a></p>            
         </figcaption>
     </figure>
